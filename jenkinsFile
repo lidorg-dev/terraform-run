@@ -1,0 +1,24 @@
+pipeline {
+
+  
+    agent any
+    stages {
+        stage('connect to ssh to Terraform & Running EC2 for Integraiton ') {
+            steps {
+        withCredentials([[
+        $class: 'AmazonWebServicesCredentialsBinding', 
+        accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
+        credentialsId: 'aws'
+    ]]) {
+
+                 sshagent (credentials: ['ssh-creds-terraform']) {
+    sh "ssh -o StrictHostKeyChecking=no -l ubuntu 34.250.169.97 'cd /home/ubuntu/terraform-compie && git pull && terraform apply -var AWS_ACCESS_KEY=${AWS_ACCESS_KEY_ID} -var AWS_SECRET_KEY=${AWS_SECRET_ACCESS_KEY} --auto-approve'"
+             
+                 }
+    
+            }
+        }
+    }
+}
+}
